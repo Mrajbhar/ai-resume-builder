@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google"; // Google login import
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -9,37 +9,66 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Handle regular login with email and password
   const handleLogin = async () => {
     setError(""); // Clear previous errors
     if (!email || !password) {
       setError("Email and Password are required!");
       return;
     }
-  
+
     try {
       const response = await fetch("http://localhost:8080/api/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
       if (!response.ok) throw new Error(data.msg || "Login failed!");
-  
+
       // Store user data
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-  
+
       // Notify all components that user has logged in
       window.dispatchEvent(new Event("storage"));
-  
+
       // Redirect to home
       navigate("/");
     } catch (err) {
       setError(err.message);
     }
   };
-  
+
+  // Handle Google login
+  const handleGoogleLogin = async (response) => {
+    try {
+      const { credential } = response;
+
+      // Send the Google token to the backend for verification
+      const res = await fetch("http://localhost:8080/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credential }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Google login failed!");
+
+      // Store user data
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Notify all components that user has logged in
+      window.dispatchEvent(new Event("storage"));
+
+      // Redirect to home
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
@@ -57,10 +86,15 @@ export default function LoginPage() {
         {error && <p className="text-red-500 text-center mb-3">{error}</p>}
 
         {/* Google Sign-In Button */}
-        <button className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 mb-4">
-          <FcGoogle className="text-2xl" />
-          <span className="text-gray-700 dark:text-gray-200 font-medium">Sign in with Google</span>
-        </button>
+        <GoogleLogin
+          onSuccess={handleGoogleLogin}
+          onError={() => setError("Google login failed")}
+          useOneTap
+          theme="outline"
+          shape="rectangular"
+          width="100%"
+          text="signin_with"
+        />
 
         {/* OR Divider */}
         <div className="flex items-center gap-2 mb-4">

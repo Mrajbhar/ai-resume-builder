@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
+import { GoogleLogin } from "@react-oauth/google";  // Import GoogleLogin from react-oauth/google
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -38,6 +39,35 @@ export default function SignUpPage() {
     }
   };
 
+  // Handle Google login
+  const handleGoogleLogin = async (response) => {
+    try {
+      const { credential } = response;
+
+      // Send the Google token to the backend for verification
+      const res = await fetch("http://localhost:8080/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: credential }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.msg || "Google login failed!");
+
+      // Store user data from Google
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Notify all components that the user has logged in
+      window.dispatchEvent(new Event("storage"));
+
+      // Redirect to home
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
       <motion.div
@@ -51,10 +81,15 @@ export default function SignUpPage() {
         </h2>
 
         {/* Google Sign-Up Button */}
-        <button className="w-full flex items-center justify-center gap-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 mb-4">
-          <FcGoogle className="text-2xl" />
-          <span className="text-gray-700 dark:text-gray-200 font-medium">Sign up with Google</span>
-        </button>
+        <GoogleLogin
+          onSuccess={handleGoogleLogin}
+          onError={() => setError("Google login failed")}
+          useOneTap
+          theme="outline"
+          shape="rectangular"
+          width="100%"
+          text="signin_with"
+        />
 
         {/* OR Divider */}
         <div className="flex items-center gap-2 mb-4">
@@ -108,9 +143,7 @@ export default function SignUpPage() {
           whileTap={{ scale: 0.95 }}
           disabled={loading}
           onClick={handleSignup}
-          className={`w-full ${
-            loading ? "bg-gray-400" : "bg-purple-500 hover:bg-purple-600"
-          } text-white py-2 rounded-lg shadow-md transition-all duration-300`}
+          className={`w-full ${loading ? "bg-gray-400" : "bg-purple-500 hover:bg-purple-600"} text-white py-2 rounded-lg shadow-md transition-all duration-300`}
         >
           {loading ? "Signing Up..." : "Sign Up"}
         </motion.button>
