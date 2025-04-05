@@ -24,7 +24,7 @@ export default function Navbar() {
   // Check login status on mount
   useEffect(() => {
     checkLoginStatus();
-    
+
     // Listen for changes in localStorage (detect login/logout)
     window.addEventListener("storage", checkLoginStatus);
     return () => window.removeEventListener("storage", checkLoginStatus);
@@ -45,23 +45,35 @@ export default function Navbar() {
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <div>
-          <Link to="/" className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+          <Link
+            to="/"
+            className="text-2xl font-bold text-purple-600 dark:text-purple-400"
+          >
             EliteResume
           </Link>
-          <p className="text-sm text-gray-500 dark:text-gray-300">Build Your Dream CV</p>
+          <p className="text-sm text-gray-500 dark:text-gray-300">
+            Build Your Dream CV
+          </p>
         </div>
 
         {/* Desktop Navbar Links */}
         <div className="hidden md:flex space-x-6">
-          {["Home", "About", "Services", "Templates", "Pricing"].map((item) => (
-            <Link
-              key={item}
-              to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
-              className="relative text-gray-700 dark:text-gray-200 hover:text-purple-500 dark:hover:text-purple-400 transition"
-            >
-              {item}
-            </Link>
-          ))}
+          {["Home", "About", "Services", "Templates", "Pricing"].map((item) => {
+            let path;
+            if (item === "Home") path = "/";
+            else if (item === "Templates") path = "/resume"; // 👈 Custom path
+            else path = `/${item.toLowerCase()}`;
+
+            return (
+              <Link
+                key={item}
+                to={path}
+                className="relative text-gray-700 dark:text-gray-200 hover:text-purple-500 dark:hover:text-purple-400 transition"
+              >
+                {item}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Desktop Search, Theme Toggle & Login/Profile */}
@@ -71,18 +83,34 @@ export default function Navbar() {
           {/* Profile/Login Button */}
           {isLoggedIn ? (
             <div className="relative">
-              <button onClick={() => setShowDropdown(!showDropdown)} className="flex items-center space-x-2 focus:outline-none">
-                <img src="https://via.placeholder.com/40" alt="Profile" className="w-10 h-10 rounded-full border-2 border-purple-500 dark:border-purple-400" />
-                <span className="text-purple-500 dark:text-purple-400">{user?.name || "User"}</span>
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center space-x-2 focus:outline-none"
+              >
+                <img
+                  src="https://via.placeholder.com/40"
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full border-2 border-purple-500 dark:border-purple-400"
+                />
+                <span className="text-purple-500 dark:text-purple-400">
+                  {user?.name || "User"}
+                </span>
               </button>
 
               {/* Dropdown Menu */}
               {showDropdown && (
                 <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 shadow-lg rounded-md overflow-hidden">
-                  <Link to="/profile" className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <Link
+                    to="/profile"
+                    onClick={() => setShowDropdown(false)}
+                    className="flex items-center px-4 py-2 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
                     <User className="w-4 h-4 mr-2" /> Profile
                   </Link>
-                  <button onClick={handleLogout} className="w-full flex items-center px-4 py-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center px-4 py-2 text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
                     <LogOut className="w-4 h-4 mr-2" /> Logout
                   </button>
                 </div>

@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
+const chalk = require("chalk");
 
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB Connected");
+    console.log(chalk.cyanBright("✅ MongoDB Connected"));
   } catch (err) {
-    console.error("❌ MongoDB Connection Error:", err);
+    console.error(chalk.redBright("❌ MongoDB Connection Error:"), err);
     process.exit(1);
   }
 };

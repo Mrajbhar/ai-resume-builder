@@ -6,6 +6,7 @@ import SignUpPage from "./Auth/SignUp";
 import Resume from "./template/resume";
 import ResumeForm from "./form/resumeform"
 import Footer from "./components/Footer"; 
+import ProfilePage from "./Auth/ProfilePage";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/resume" element={<Resume />} />
           <Route path="/resumeForm" element={<ResumeForm />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
         </Routes>
       </div>
