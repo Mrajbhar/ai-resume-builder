@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaPlus, FaPaperPlane, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Mail, Phone, Linkedin, Github } from "lucide-react";
-import { Link } from "react-router-dom"; 
+import { Link } from "react-router-dom";
 
 export default function ResumeForm() {
   const [formData, setFormData] = useState({
@@ -20,15 +20,22 @@ export default function ResumeForm() {
     websiteLabel: "",
     websiteURL: "",
     github: "",
-    summaryPoints: [], 
-    skills: { 
+    summaryPoints: [],
+    skills: {
       programmingLanguages: [],
       developmentFrameworks: [],
       versionControl: [],
       databaseManagement: [],
       ideAndTools: [],
     },
-    education: [], 
+    visibleCategories: {
+      programmingLanguages: false,
+      developmentFrameworks: false,
+      versionControl: false,
+      databaseManagement: false,
+      ideAndTools: false,
+    },
+    education: [],
   });
 
   const [workExperience, setWorkExperience] = useState([]);
@@ -53,8 +60,8 @@ export default function ResumeForm() {
         startYear: "",
         endMonth: "",
         endYear: "",
-        responsibilities: [""], 
-       
+        responsibilities: [""],
+
       },
     ]);
   };
@@ -64,7 +71,7 @@ export default function ResumeForm() {
       ...personalProjects,
       {
         projectName: "",
-        description: [""], // Description points as an array
+        description: [""], 
         url: "",
         github: "",
         startMonth: "",
@@ -76,7 +83,6 @@ export default function ResumeForm() {
   };
 
 
-  
 
   const handleDescriptionChange = (projectIndex, descriptionIndex, value) => {
     const updatedProjects = [...personalProjects];
@@ -99,9 +105,24 @@ export default function ResumeForm() {
 
   const handleWorkExperienceChange = (index, field, value) => {
     const updatedExperience = [...workExperience];
-    updatedExperience[index][field] = value;
+
+    // Handling cases for startYear, startMonth, endYear, endMonth separately
+    if (field === "startDate" || field === "endDate") {
+      const [year, month] = value.split('-');
+      if (field === "startDate") {
+        updatedExperience[index].startYear = year;
+        updatedExperience[index].startMonth = month;
+      } else {
+        updatedExperience[index].endYear = year;
+        updatedExperience[index].endMonth = month;
+      }
+    } else {
+      updatedExperience[index][field] = value;
+    }
+
     setWorkExperience(updatedExperience);
   };
+
 
   const handleResponsibilityChange = (expIndex, responsibilityIndex, value) => {
     const updatedExperience = [...workExperience];
@@ -116,12 +137,22 @@ export default function ResumeForm() {
     setWorkExperience(updatedExperience);
   };
 
-  
+
   const handlePersonalProjectChange = (index, field, value) => {
     const updatedProjects = [...personalProjects];
-    updatedProjects[index][field] = value;
+    
+    // For 'startDate' or 'endDate', split the month and year
+    if (field === "startDate" || field === "endDate") {
+      const [year, month] = value.split('-');
+      updatedProjects[index][`${field}Year`] = year;
+      updatedProjects[index][`${field}Month`] = month;
+    } else {
+      updatedProjects[index][field] = value;
+    }
+  
     setPersonalProjects(updatedProjects);
   };
+  
 
   const handleSummaryChange = (index, value) => {
     const updatedPoints = [...formData.summaryPoints];
@@ -141,7 +172,7 @@ export default function ResumeForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Resume Data Submitted:", formData, workExperience, personalProjects);
-  
+
     // Optionally, reset form data after submission:
     setFormData({
       firstName: "",
@@ -163,45 +194,53 @@ export default function ResumeForm() {
     setWorkExperience([]);
     setPersonalProjects([]);
   };
-  
+
 
   // Skills Section
-const handleSkillsChange = (category, index, value) => {
-  const updatedSkills = { ...formData.skills };
-  updatedSkills[category][index] = value;
-  setFormData({ ...formData, skills: updatedSkills });
-};
+  const handleSkillsChange = (category, index, value) => {
+    const updatedSkills = { ...formData.skills };
+    updatedSkills[category][index] = value;
+    setFormData({ ...formData, skills: updatedSkills });
+  };
 
-const addSkill = (category) => {
-  const updatedSkills = { ...formData.skills };
-  updatedSkills[category].push(""); // Add a new empty skill
-  setFormData({ ...formData, skills: updatedSkills });
-};
+  const addSkill = (category) => {
+    const updatedSkills = { ...formData.skills };
+    updatedSkills[category].push(""); // Add a new empty skill
 
-const removeSkill = (category, index) => {
-  const updatedSkills = { ...formData.skills };
-  updatedSkills[category].splice(index, 1); // Remove skill
-  setFormData({ ...formData, skills: updatedSkills });
-};
+    const updatedVisibility = { ...formData.visibleCategories };
+    updatedVisibility[category] = true; // Make the category visible
 
-// Education Section
-const addEducation = () => {
-  setFormData({
-    ...formData,
-    education: [
-      ...formData.education,
-      { degree: "", institution: "", startYear: "", endYear: "", location: "" },
-    ],
-  });
-};
+    setFormData({
+      ...formData,
+      skills: updatedSkills,
+      visibleCategories: updatedVisibility,
+    });
+  };
 
-const handleEducationChange = (index, field, value) => {
-  const updatedEducation = [...formData.education];
-  updatedEducation[index][field] = value;
-  setFormData({ ...formData, education: updatedEducation });
-};
+  const removeSkill = (category, index) => {
+    const updatedSkills = { ...formData.skills };
+    updatedSkills[category].splice(index, 1); // Remove skill
+    setFormData({ ...formData, skills: updatedSkills });
+  };
 
-  
+  // Education Section
+  const addEducation = () => {
+    setFormData({
+      ...formData,
+      education: [
+        ...formData.education,
+        { degree: "", institution: "", startYear: "", endYear: "", location: "" },
+      ],
+    });
+  };
+
+  const handleEducationChange = (index, field, value) => {
+    const updatedEducation = [...formData.education];
+    updatedEducation[index][field] = value;
+    setFormData({ ...formData, education: updatedEducation });
+  };
+
+
 
   return (
     <div className="min-h-screen w-full flex flex-col lg:flex-row items-start bg-gray-100 dark:bg-gray-900 p-6 pt-20">
@@ -297,9 +336,25 @@ const handleEducationChange = (index, field, value) => {
                   <input type="text" placeholder="Country" className="input-field" value={exp.country} onChange={(e) => handleWorkExperienceChange(index, "country", e.target.value)} />
                 </div>
                 <div className="flex gap-4">
-                  <input type="month" placeholder="Start Date" className="input-field" value={`${exp.startYear}-${exp.startMonth}`} onChange={(e) => handleWorkExperienceChange(index, "startDate", e.target.value)} />
-                  <input type="month" placeholder="End Date" className="input-field" value={`${exp.endYear}-${exp.endMonth}`} onChange={(e) => handleWorkExperienceChange(index, "endDate", e.target.value)} />
+                  {/* Start Date */}
+                  <input
+  type="month"
+  placeholder="Start Date"
+  className="input-field"
+  value={`${exp.startYear}-${exp.startMonth.padStart(2, '0')}`}
+  onChange={(e) => handleWorkExperienceChange(index, "startDate", e.target.value)}
+/>
+
+                  {/* End Date */}
+                  <input
+  type="month"
+  placeholder="End Date"
+  className="input-field"
+  value={`${exp.endYear}-${exp.endMonth.padStart(2, '0')}`}
+  onChange={(e) => handleWorkExperienceChange(index, "endDate", e.target.value)}
+/>
                 </div>
+
                 {exp.responsibilities.map((responsibility, responsibilityIndex) => (
                   <div key={responsibilityIndex} className="flex items-center gap-2 w-full">
                     <input
@@ -324,7 +379,7 @@ const handleEducationChange = (index, field, value) => {
             {showWorkExperience && <button type="button" onClick={addWorkExperience} className="w-full bg-gray-800 dark:bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition mt-4 flex items-center justify-center"><FaPlus className="mr-2" /> Add Work Experience</button>}
           </div>
 
-         
+
           {/* Personal Projects */}
           <div className="mt-6">
             <h3 className="text-xl font-semibold mb-4 flex items-center justify-between text-gray-800 dark:text-gray-200 cursor-pointer" onClick={() => setShowPersonalProjects(!showPersonalProjects)}>
@@ -336,9 +391,26 @@ const handleEducationChange = (index, field, value) => {
 
                 {/* Start and End Date */}
                 <div className="flex gap-4">
-                  <input type="month" placeholder="Start Date" className="input-field" value={`${project.startYear}-${project.startMonth}`} onChange={(e) => handlePersonalProjectChange(index, "startDate", e.target.value)} />
-                  <input type="month" placeholder="End Date" className="input-field" value={`${project.endYear}-${project.endMonth}`} onChange={(e) => handlePersonalProjectChange(index, "endDate", e.target.value)} />
-                </div>
+  {/* Start Date */}
+  <input
+    type="month"
+    placeholder="Start Date"
+    className="input-field"
+    value={`${project.startYear}-${project.startMonth ? project.startMonth.padStart(2, '0') : '01'}`} // Default to '01' if no month
+    onChange={(e) => handlePersonalProjectChange(index, "startDate", e.target.value)}
+  />
+
+  {/* End Date */}
+  <input
+    type="month"
+    placeholder="End Date"
+    className="input-field"
+    value={`${project.endYear}-${project.endMonth ? project.endMonth.padStart(2, '0') : '01'}`} // Default to '01' if no month
+    onChange={(e) => handlePersonalProjectChange(index, "endDate", e.target.value)}
+  />
+</div>
+
+                
 
                 {/* Description */}
                 <div className="flex flex-col gap-2">
@@ -380,97 +452,99 @@ const handleEducationChange = (index, field, value) => {
             ))}
             {showPersonalProjects && <button type="button" onClick={addPersonalProject} className="w-full bg-gray-800 dark:bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition mt-4 flex items-center justify-center"><FaPlus className="mr-2" /> Add Personal Project</button>}
           </div>
+          {/* Skills Section in Left Section (Form) */}
+          <h3 className="text-xl font-semibold mt-6 mb-4 text-gray-800 dark:text-gray-200">Skills</h3>
+          <div className="flex flex-col gap-4">
+            {["programmingLanguages", "developmentFrameworks", "versionControl", "databaseManagement", "ideAndTools"].map((category, index) => (
+              <div key={index}>
+                <h4 className="font-semibold text-gray-800 dark:text-gray-200">{category.replace(/([A-Z])/g, ' $1').toUpperCase()}</h4>
+                {formData.skills[category].map((skill, skillIndex) => (
+                  <div key={skillIndex} className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      placeholder={`Enter ${category}`}
+                      value={skill}
+                      onChange={(e) => handleSkillsChange(category, skillIndex, e.target.value)}
+                      className="input-field bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(category, skillIndex)}
+                      className="text-red-600 hover:text-red-800 p-2"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => addSkill(category)}
+                  className="w-full bg-gray-800 dark:bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition mt-4 flex items-center justify-center"
+                >
+                  <FaPlus className="mr-2" /> Add {category.replace(/([A-Z])/g, ' $1')}
+                </button>
+              </div>
+            ))}
+          </div>
 
-          {/* Skills Section */}
-<h3 className="text-xl font-semibold mt-6 mb-4 text-gray-800 dark:text-gray-200">Skills</h3>
-<div className="flex flex-col gap-4">
-  {["programmingLanguages", "developmentFrameworks", "versionControl", "databaseManagement", "ideAndTools"].map((category, index) => (
-    <div key={index}>
-      <h4 className="font-semibold text-gray-800 dark:text-gray-200">{category.replace(/([A-Z])/g, ' $1').toUpperCase()}</h4>
-      {formData.skills[category].map((skill, skillIndex) => (
-        <div key={skillIndex} className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder={`Enter ${category}`}
-            value={skill}
-            onChange={(e) => handleSkillsChange(category, skillIndex, e.target.value)}
-            className="input-field bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="button"
-            onClick={() => removeSkill(category, skillIndex)}
-            className="text-red-600 hover:text-red-800 p-2"
-          >
-            X
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        onClick={() => addSkill(category)}
-        className="w-full bg-gray-800 dark:bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition mt-4 flex items-center justify-center"
-      >
-        <FaPlus className="mr-2" /> Add {category.replace(/([A-Z])/g, ' $1')}
-      </button>
-    </div>
-  ))}
-</div>
 
-{/* Education Section */}
-<h3 className="text-xl font-semibold mt-6 mb-4 text-gray-800 dark:text-gray-200">Education</h3>
-<div className="flex flex-col gap-4">
-  {formData.education.map((edu, index) => (
-    <div key={index} className="border border-gray-300 dark:border-gray-600 p-4 rounded-lg shadow-sm flex flex-col gap-4 bg-gray-100 dark:bg-gray-700">
-      <input
-        type="text"
-        placeholder="Degree"
-        value={edu.degree}
-        onChange={(e) => handleEducationChange(index, "degree", e.target.value)}
-        className="input-field"
-      />
-      <input
-        type="text"
-        placeholder="Institution"
-        value={edu.institution}
-        onChange={(e) => handleEducationChange(index, "institution", e.target.value)}
-        className="input-field"
-      />
-      <div className="flex gap-4">
-        <input
-          type="number"
-          placeholder="Start Year"
-          value={edu.startYear}
-          onChange={(e) => handleEducationChange(index, "startYear", e.target.value)}
-          className="input-field"
-        />
-        <input
-          type="number"
-          placeholder="End Year"
-          value={edu.endYear}
-          onChange={(e) => handleEducationChange(index, "endYear", e.target.value)}
-          className="input-field"
-        />
-      </div>
-      <input
-        type="text"
-        placeholder="Location"
-        value={edu.location}
-        onChange={(e) => handleEducationChange(index, "location", e.target.value)}
-        className="input-field"
-      />
-    </div>
-  ))}
-  <button
-    type="button"
-    onClick={addEducation}
-    className="w-full bg-gray-800 dark:bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition mt-4 flex items-center justify-center"
-  >
-    <FaPlus className="mr-2" /> Add Education
-  </button>
-</div>
+
+          {/* Education Section */}
+          <h3 className="text-xl font-semibold mt-6 mb-4 text-gray-800 dark:text-gray-200">Education</h3>
+          <div className="flex flex-col gap-4">
+            {formData.education.map((edu, index) => (
+              <div key={index} className="border border-gray-300 dark:border-gray-600 p-4 rounded-lg shadow-sm flex flex-col gap-4 bg-gray-100 dark:bg-gray-700">
+                <input
+                  type="text"
+                  placeholder="Degree"
+                  value={edu.degree}
+                  onChange={(e) => handleEducationChange(index, "degree", e.target.value)}
+                  className="input-field"
+                />
+                <input
+                  type="text"
+                  placeholder="Institution"
+                  value={edu.institution}
+                  onChange={(e) => handleEducationChange(index, "institution", e.target.value)}
+                  className="input-field"
+                />
+                <div className="flex gap-4">
+                  <input
+                    type="number"
+                    placeholder="Start Year"
+                    value={edu.startYear}
+                    onChange={(e) => handleEducationChange(index, "startYear", e.target.value)}
+                    className="input-field"
+                  />
+                  <input
+                    type="number"
+                    placeholder="End Year"
+                    value={edu.endYear}
+                    onChange={(e) => handleEducationChange(index, "endYear", e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Location"
+                  value={edu.location}
+                  onChange={(e) => handleEducationChange(index, "location", e.target.value)}
+                  className="input-field"
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addEducation}
+              className="w-full bg-gray-800 dark:bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-700 transition mt-4 flex items-center justify-center"
+            >
+              <FaPlus className="mr-2" /> Add Education
+            </button>
+          </div>
 
         </form>
 
+        {/* Right Section: Resume Template (Sticky) */}
         {/* Right Section: Resume Template (Sticky) */}
         <div className="lg:w-1/2 w-full px-8 py-4 mt-0 lg:mt-0 flex-grow sticky top-0" style={{ height: 'calc(100vh - 40px)', overflow: 'hidden' }}>
           <motion.div
@@ -479,113 +553,131 @@ const handleEducationChange = (index, field, value) => {
             transition={{ duration: 1 }}
           >
             <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 border border-gray-300 dark:border-gray-700">
-              {/* Name & Position */}
-              <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
-                {formData.firstName} {formData.lastName}
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-300 text-center">{formData.jobTitle}</p>
+              {/* Sticky Header */}
+              <div className="sticky top-0 bg-white dark:bg-gray-800 p-8 z-10">
+                {/* Name & Position */}
+                <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
+                  {formData.firstName} {formData.lastName}
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-300 text-center">{formData.jobTitle}</p>
 
-              {/* Contact Information */}
-              <div className="mt-4 flex flex-wrap justify-center gap-6">
-                <div className="flex items-center text-gray-600 dark:text-gray-300">
-                  <Mail className="w-5 h-5 mr-2" />
-                  <span>{formData.email}</span>
+                {/* Contact Information */}
+                <div className="mt-4 flex flex-wrap justify-center gap-6">
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <Mail className="w-5 h-5 mr-2" />
+                    <span>{formData.email}</span>
+                  </div>
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    <Phone className="w-5 h-5 mr-2" />
+                    <span>{formData.phone}</span>
+                  </div>
+                  <a href={formData.linkedin ? formData.linkedin : "#"} className="flex items-center text-blue-500">
+                    <Linkedin className="w-5 h-5 mr-2" />
+                  </a>
+                  <a
+                    href={formData.github ? formData.github : "#"}
+                    className="flex items-center text-gray-700 dark:text-gray-300"
+                    target={formData.github ? "_blank" : "_self"}
+                  >
+                    <Github className="w-5 h-5 mr-2" />
+                  </a>
+
+                  <div className="flex items-center text-gray-600 dark:text-gray-300">
+                    {formData.address}, {formData.city}, {formData.state}, {formData.country}, {formData.zipCode}
+                  </div>
                 </div>
-                <div className="flex items-center text-gray-600 dark:text-gray-300">
-                  <Phone className="w-5 h-5 mr-2" />
-                  <span>{formData.phone}</span>
-                </div>
-                <a href="#" className="flex items-center text-blue-500">
-                  <Linkedin className="w-5 h-5 mr-2" />
-                  {formData.linkedin}
-                </a>
-                <a href="#" className="flex items-center text-gray-700 dark:text-gray-300">
-                  <Github className="w-5 h-5 mr-2" />
-                  {formData.github}
-                </a>
               </div>
 
-              {/* Summary */}
-              <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Summary</h2>
-              <ul className="text-gray-600 dark:text-gray-300">
-                {formData.summaryPoints.map((point, index) => (
-                  <li key={index} className="list-disc ml-6">{point}</li>
+              {/* Scrollable Content Below the Header */}
+              <div className="overflow-y-auto max-h-[calc(100vh-250px)]">
+                {/* Summary */}
+                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Summary</h2>
+                <ul className="text-gray-600 dark:text-gray-300">
+                  {formData.summaryPoints.map((point, index) => (
+                    <li key={index} className="list-disc ml-6">{point}</li>
+                  ))}
+                </ul>
+
+                {/* Work Experience */}
+                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Experience</h2>
+                {workExperience.map((exp, index) => (
+                  <div key={index} className="mt-3">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{exp.jobTitle}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{exp.company} | {exp.startMonth} {exp.startYear} - {exp.endMonth} {exp.endYear}</p>
+                    <p className="text-gray-600 dark:text-gray-300">{exp.city}, {exp.state}, {exp.country}</p>
+                    <ul className="list-disc ml-6">
+                      {exp.responsibilities.map((responsibility, idx) => (
+                        <li key={idx} className="text-gray-600 dark:text-gray-300">{responsibility}</li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
 
-              {/* Work Experience */}
-              <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Experience</h2>
-              {workExperience.map((exp, index) => (
-                <div key={index} className="mt-3">
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{exp.jobTitle}</h3>
-                  <p className="text-gray-600 dark:text-gray-300">{exp.company} | {exp.startMonth} {exp.startYear} - {exp.endMonth} {exp.endYear}</p>
-                  <p className="text-gray-600 dark:text-gray-300">{exp.city}, {exp.state}, {exp.country}</p>
-                  <ul className="list-disc ml-6">
-                    {exp.responsibilities.map((responsibility, idx) => (
-                      <li key={idx} className="text-gray-600 dark:text-gray-300">{responsibility}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+                {/* Personal Projects */}
+                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Personal Projects</h2>
+                {personalProjects.map((project, index) => (
+                  <div key={index} className="mt-3">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{project.projectName}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
+                    <ul className="list-disc ml-6">
+                      {project.description.map((desc, idx) => (
+                        <li key={idx} className="text-gray-600 dark:text-gray-300">{desc}</li>
+                      ))}
+                    </ul>
+                    {project.github && (
+                      <a href={project.github} className="flex items-center text-gray-700 dark:text-gray-300 mt-2">
+                        <Github className="w-5 h-5 mr-2" />
+                        GitHub
+                      </a>
+                    )}
+                    {project.url && (
+                      <a href={project.url} className="flex items-center text-blue-500 mt-2">
+                        <Link className="w-5 h-5 mr-2" />
+                        Project URL
+                      </a>
+                    )}
+                  </div>
+                ))}
 
-             {/* Personal Projects */}
-             <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Personal Projects</h2>
-              {personalProjects.map((project, index) => (
-                <div key={index} className="mt-3">
-                  <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{project.projectName}</h3>
-                  <p className="text-gray-600 dark:text-gray-300">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
-                  <ul className="list-disc ml-6">
-                    {project.description.map((desc, idx) => (
-                      <li key={idx} className="text-gray-600 dark:text-gray-300">{desc}</li>
-                    ))}
-                  </ul>
-                  {project.github && (
-                    <a href={project.github} className="flex items-center text-gray-700 dark:text-gray-300 mt-2">
-                      <Github className="w-5 h-5 mr-2" />
-                      GitHub
-                    </a>
-                  )}
-                  {project.url && (
-                    <a href={project.url} className="flex items-center text-blue-500 mt-2">
-                      <Link className="w-5 h-5 mr-2" />
-                      Project URL
-                    </a>
-                  )}
-                </div>
-              ))}
+                {/* Skills Section */}
+                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Skills</h2>
+                {["programmingLanguages", "developmentFrameworks", "versionControl", "databaseManagement", "ideAndTools"].map((category) => (
+                  formData.visibleCategories[category] && (
+                    <div key={category}>
+                      {/* Category Heading */}
+                      <h3 className="font-semibold text-gray-700 dark:text-gray-200">
+                        {category.replace(/([A-Z])/g, ' $1').toUpperCase()}
+                      </h3>
 
+                      {/* Show comma-separated skills or a placeholder text if no skills */}
+                      <p className="text-gray-600 dark:text-gray-300">
+                        {formData.skills[category].length > 0
+                          ? formData.skills[category].join(", ")
+                          : "No skills added yet"}
+                      </p>
+                    </div>
+                  )
+                ))}
 
-              {/* Skills Section */}
-<div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-<h2 className="text-xl font-semibold text-gray-800 dark:text-white">Skills</h2>
-{Object.entries(formData.skills).map(([category, skills]) => (
-  <div key={category}>
-    <h3 className="font-semibold text-gray-700 dark:text-gray-200">{category.replace(/([A-Z])/g, ' $1').toUpperCase()}</h3>
-    <ul className="list-disc ml-6 text-gray-600 dark:text-gray-300">
-      {skills.map((skill, index) => (
-        <li key={index}>{skill}</li>
-      ))}
-    </ul>
-  </div>
-))}
-
-{/* Education Section */}
-<div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-<h2 className="text-xl font-semibold text-gray-800 dark:text-white">Education</h2>
-{formData.education.map((edu, index) => (
-  <div key={index} className="mt-3">
-    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{edu.degree}</h3>
-    <p className="text-gray-600 dark:text-gray-300">{edu.institution} | {edu.startYear} - {edu.endYear}</p>
-    <p className="text-gray-600 dark:text-gray-300">{edu.location}</p>
-  </div>
-))}
-
+                {/* Education Section */}
+                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Education</h2>
+                {formData.education.map((edu, index) => (
+                  <div key={index} className="mt-3">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{edu.degree}</h3>
+                    <p className="text-gray-600 dark:text-gray-300">{edu.institution} | {edu.startYear} - {edu.endYear}</p>
+                    <p className="text-gray-600 dark:text-gray-300">{edu.location}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
+
       </div>
     </div>
   );
