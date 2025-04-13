@@ -22,17 +22,17 @@ const Resume2 = () => {
       description: 'Focused on skill-based formatting to emphasize professional capabilities.',
     },
     {
-      name: 'Skills2',
+      name: 'SDE',
       image: 'https://cdn.enhancv.com/predefined-examples/S2qerVrErI0tvVZLKJOmqRRRSI0hFq6BfanE79qZ/image.png',
       description: 'A modern design highlighting your skills in a creative way.',
     },
     {
-      name: 'Skills3',
+      name: 'SDE 2',
       image: 'https://cdn.enhancv.com/predefined-examples/S2qerVrErI0tvVZLKJOmqRRRSI0hFq6BfanE79qZ/image.png',
       description: 'A modern design highlighting your skills in a creative way.',
     },
     {
-      name: 'Skills4',
+      name: 'SDE 3',
       image: 'https://cdn.enhancv.com/predefined-examples/ODZVlPZYcH19GrpQwczhgCJICeB1Y5zh81Pj1wVI/image.png',
       description: 'A modern design highlighting your skills in a creative way.',
     },

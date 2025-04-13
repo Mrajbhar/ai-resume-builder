@@ -3,6 +3,7 @@ import { FaPlus, FaPaperPlane, FaChevronDown, FaChevronUp } from "react-icons/fa
 import { motion } from "framer-motion";
 import { Mail, Phone, Linkedin, Github } from "lucide-react";
 import { Link } from "react-router-dom";
+import ResumePreview from "../form/ResumePreview"
 
 export default function ResumeForm() {
   const [formData, setFormData] = useState({
@@ -247,7 +248,7 @@ export default function ResumeForm() {
       {/* Container for both sections */}
       <div className="flex flex-col lg:flex-row w-full gap-6">
         {/* Left Section: Form (Scrollable) */}
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-lg lg:max-w-xl overflow-y-auto" style={{ height: 'calc(100vh - 40px)' }}>
+<form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-lg lg:max-w-xl flex-1">
           <h2 className="text-3xl font-bold text-center mb-6 text-gray-900 dark:text-white">Create Your Resume</h2>
 
           {/* Personal Information */}
@@ -546,137 +547,13 @@ export default function ResumeForm() {
 
         {/* Right Section: Resume Template (Sticky) */}
         {/* Right Section: Resume Template (Sticky) */}
-        <div className="lg:w-1/2 w-full px-8 py-4 mt-0 lg:mt-0 flex-grow sticky top-0" style={{ height: 'calc(100vh - 40px)', overflow: 'hidden' }}>
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8 border border-gray-300 dark:border-gray-700">
-              {/* Sticky Header */}
-              <div className="sticky top-0 bg-white dark:bg-gray-800 p-8 z-10">
-                {/* Name & Position */}
-                <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white">
-                  {formData.firstName} {formData.lastName}
-                </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-300 text-center">{formData.jobTitle}</p>
-
-                {/* Contact Information */}
-                <div className="mt-4 flex flex-wrap justify-center gap-6">
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <Mail className="w-5 h-5 mr-2" />
-                    <span>{formData.email}</span>
-                  </div>
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    <Phone className="w-5 h-5 mr-2" />
-                    <span>{formData.phone}</span>
-                  </div>
-                  <a href={formData.linkedin ? formData.linkedin : "#"} className="flex items-center text-blue-500">
-                    <Linkedin className="w-5 h-5 mr-2" />
-                  </a>
-                  <a
-                    href={formData.github ? formData.github : "#"}
-                    className="flex items-center text-gray-700 dark:text-gray-300"
-                    target={formData.github ? "_blank" : "_self"}
-                  >
-                    <Github className="w-5 h-5 mr-2" />
-                  </a>
-
-                  <div className="flex items-center text-gray-600 dark:text-gray-300">
-                    {formData.address}, {formData.city}, {formData.state}, {formData.country}, {formData.zipCode}
-                  </div>
-                </div>
-              </div>
-
-              {/* Scrollable Content Below the Header */}
-              <div className="overflow-y-auto max-h-[calc(100vh-250px)]">
-                {/* Summary */}
-                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Summary</h2>
-                <ul className="text-gray-600 dark:text-gray-300">
-                  {formData.summaryPoints.map((point, index) => (
-                    <li key={index} className="list-disc ml-6">{point}</li>
-                  ))}
-                </ul>
-
-                {/* Work Experience */}
-                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Experience</h2>
-                {workExperience.map((exp, index) => (
-                  <div key={index} className="mt-3">
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{exp.jobTitle}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{exp.company} | {exp.startMonth} {exp.startYear} - {exp.endMonth} {exp.endYear}</p>
-                    <p className="text-gray-600 dark:text-gray-300">{exp.city}, {exp.state}, {exp.country}</p>
-                    <ul className="list-disc ml-6">
-                      {exp.responsibilities.map((responsibility, idx) => (
-                        <li key={idx} className="text-gray-600 dark:text-gray-300">{responsibility}</li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-
-                {/* Personal Projects */}
-                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Personal Projects</h2>
-                {personalProjects.map((project, index) => (
-                  <div key={index} className="mt-3">
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{project.projectName}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{project.startMonth} {project.startYear} - {project.endMonth} {project.endYear}</p>
-                    <ul className="list-disc ml-6">
-                      {project.description.map((desc, idx) => (
-                        <li key={idx} className="text-gray-600 dark:text-gray-300">{desc}</li>
-                      ))}
-                    </ul>
-                    {project.github && (
-                      <a href={project.github} className="flex items-center text-gray-700 dark:text-gray-300 mt-2">
-                        <Github className="w-5 h-5 mr-2" />
-                        GitHub
-                      </a>
-                    )}
-                    {project.url && (
-                      <a href={project.url} className="flex items-center text-blue-500 mt-2">
-                        <Link className="w-5 h-5 mr-2" />
-                        Project URL
-                      </a>
-                    )}
-                  </div>
-                ))}
-
-                {/* Skills Section */}
-                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Skills</h2>
-                {["programmingLanguages", "developmentFrameworks", "versionControl", "databaseManagement", "ideAndTools"].map((category) => (
-                  formData.visibleCategories[category] && (
-                    <div key={category}>
-                      {/* Category Heading */}
-                      <h3 className="font-semibold text-gray-700 dark:text-gray-200">
-                        {category.replace(/([A-Z])/g, ' $1').toUpperCase()}
-                      </h3>
-
-                      {/* Show comma-separated skills or a placeholder text if no skills */}
-                      <p className="text-gray-600 dark:text-gray-300">
-                        {formData.skills[category].length > 0
-                          ? formData.skills[category].join(", ")
-                          : "No skills added yet"}
-                      </p>
-                    </div>
-                  )
-                ))}
-
-                {/* Education Section */}
-                <div className="border-t border-gray-300 dark:border-gray-600 my-6"></div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Education</h2>
-                {formData.education.map((edu, index) => (
-                  <div key={index} className="mt-3">
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">{edu.degree}</h3>
-                    <p className="text-gray-600 dark:text-gray-300">{edu.institution} | {edu.startYear} - {edu.endYear}</p>
-                    <p className="text-gray-600 dark:text-gray-300">{edu.location}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        </div>
+        {/* <div className="w-full lg:w-1/2 overflow-y-auto p-6">
+    <ResumePreview 
+      formData={formData} 
+      workExperience={workExperience} 
+      personalProjects={personalProjects} 
+    />
+  </div> */}
 
       </div>
     </div>

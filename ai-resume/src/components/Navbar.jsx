@@ -81,7 +81,7 @@ export default function Navbar() {
           {["Home", "About", "Services", "Templates", "Pricing"].map((item) => {
             let path;
             if (item === "Home") path = "/";
-            else if (item === "Templates") path = "/resume2"; // 👈 Custom path
+            else if (item === "Templates") path = "/templateForm"; // 👈 Custom path
             else path = `/${item.toLowerCase()}`;
 
             return (
